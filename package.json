@@ -4,11 +4,21 @@
   "description": "wallet finances app API using Node.js and Postgres",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
   },
   "author": "victor lunes",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
-  }
+    "express": "^4.18.2",
+    "pg": "^8.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorlunes/wallet-app-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/victorlunes/wallet-app-backend/issues"
+  },
+  "homepage": "https://github.com/victorlunes/wallet-app-backend#readme"
 }

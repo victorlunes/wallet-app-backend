@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "start:dev": "nodemon src/index.js"
   },
   "author": "victor lunes",
   "license": "ISC",
@@ -20,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/victorlunes/wallet-app-backend/issues"
   },
-  "homepage": "https://github.com/victorlunes/wallet-app-backend#readme"
+  "homepage": "https://github.com/victorlunes/wallet-app-backend#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
 }

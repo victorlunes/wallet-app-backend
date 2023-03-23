@@ -56,4 +56,87 @@ router.post('/', async (req, res) =>{
     }
 })
 
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params
+        const { email } = req.headers
+
+        if (!id) {
+            return res.status(400).json({ error: "ID is mandatory" })
+        }
+
+        if (email.length < 5 || !email.includes("@")){
+            return res.status(400).json({ error : "E-mail is invalid"})
+        }
+
+        
+        const userQuery = await db.query(usersQueries.findByEmail(email))
+        if(!userQuery.rows[0]) {
+            return res.status(404).json({ error : "User does not exists"})
+        }
+
+        const findFinancesText = 'SELECT * from finances WHERE id=$1'
+        const findFinancesValues = [Number(id)]
+        const financesItemQuery = await db.query(findFinancesText, findFinancesValues)
+        if(!financesItemQuery.rows[0]) {
+            return res.status(401).json({ error : "Finances row not found"})
+        }
+
+        if(financesItemQuery.rows[0].user_id !== userQuery.rows[0].id){
+            return res.status(400).json({ error: "finances row doest not belong to user" })
+        }
+
+
+        const text = 'DELETE FROM finances WHERE id=$1 RETURNING *'
+        const values = [Number(id)]
+        const deleteResponse = await db.query(text, values)
+
+        if(!deleteResponse.rows[0]){
+            return res.status(400).json({ error : "Finances row not deleted"})
+        }
+
+        return res.status(200).json(deleteResponse.rows[0])
+    } catch (error) {
+        return res.status(500).json(error)
+    }
+})
+
+router.get('/', async (req, res) => { 
+    try {
+        const { date } = req.query
+        const { email } = req.headers
+
+        if(!date || date.length != 10){
+            return res.status(400).json({ error : "date is mandatory and should be in the format yyyy-mm-dd"})
+        }
+
+        if (email.length < 5 || !email.includes("@")){
+            return res.status(400).json({ error : "E-mail is invalid"})
+        }
+
+        const userQuery = await db.query(usersQueries.findByEmail(email))
+        if(!userQuery.rows[0]) {
+            return res.status(404).json({ error : "User does not exists"})
+        }
+
+        const dateObject = new Date(date)
+        const year = dateObject.getFullYear()
+        const month = dateObject.getMonth()
+        const initDate = new Date(year, month, 1).toISOString()
+        const finDate = new Date(year, month + 1, 0).toISOString()
+        
+        const text = 
+        "SELECT fin.title, fin.value, fin.date, fin.user_id, fin.category_id, cat.name FROM finances as fin JOIN categories as cat ON fin.category_id = cat.id WHERE fin.user_id= $1 AND fin.date BETWEEN $2 AND $3 ORDER BY fin.date ASC";
+
+        const value = [userQuery.rows[0].id, initDate, finDate]
+
+        const financesQuery = await db.query(text, value)
+
+        return res.status(200).json(financesQuery.rows)
+        
+    }catch (error) {
+        return res.status(500).json(error)
+    }   
+})
+
 module.exports = router;
